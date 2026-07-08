@@ -25,13 +25,20 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Validate deploy secrets
+        run: |
+          test -n "${{ secrets.PLESK_HOST }}" || (echo "Missing PLESK_HOST secret" && exit 1)
+          test -n "${{ secrets.PLESK_USER }}" || (echo "Missing PLESK_USER secret" && exit 1)
+          test -n "${{ secrets.PLESK_PASSWORD }}" || (echo "Missing PLESK_PASSWORD secret" && exit 1)
+          test -n "${{ secrets.PLESK_TARGET }}" || (echo "Missing PLESK_TARGET secret" && exit 1)
+
       - name: Deploy dist to Plesk
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.PLESK_HOST }}
           username: ${{ secrets.PLESK_USER }}
           password: ${{ secrets.PLESK_PASSWORD }}
-          port: ${{ secrets.PLESK_SSH_PORT }}
+          port: ${{ secrets.PLESK_SSH_PORT || 22 }}
           source: "dist/*"
           target: ${{ secrets.PLESK_TARGET }}
           strip_components: 1
