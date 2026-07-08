@@ -49,7 +49,7 @@ jobs:
           host: ${{ secrets.PLESK_HOST }}
           username: ${{ secrets.PLESK_USER }}
           password: ${{ secrets.PLESK_PASSWORD }}
-          port: 22
+          port: ${{ secrets.PLESK_PORT }}
           source: "dist/*"
           target: ${{ secrets.PLESK_TARGET }}
           strip_components: 1
