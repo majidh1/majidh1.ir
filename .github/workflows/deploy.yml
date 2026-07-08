@@ -1,4 +1,4 @@
-name: Deploy to Plesk
+name: Deploy to Plesk FTP
 
 on:
   push:
@@ -30,27 +30,24 @@ jobs:
           PLESK_HOST: ${{ secrets.PLESK_HOST }}
           PLESK_USER: ${{ secrets.PLESK_USER }}
           PLESK_PASSWORD: ${{ secrets.PLESK_PASSWORD }}
-          PLESK_TARGET: ${{ secrets.PLESK_TARGET }}
         run: |
           test -n "$PLESK_HOST" || (echo "Missing PLESK_HOST secret" && exit 1)
           test -n "$PLESK_USER" || (echo "Missing PLESK_USER secret" && exit 1)
           test -n "$PLESK_PASSWORD" || (echo "Missing PLESK_PASSWORD secret" && exit 1)
-          test -n "$PLESK_TARGET" || (echo "Missing PLESK_TARGET secret" && exit 1)
           case "$PLESK_HOST" in
             *://*|*:*)
-              echo "PLESK_HOST must be a plain SSH/SFTP hostname like majidh1.ir, not a Plesk panel URL like https://majidh1.ir:8443/"
+              echo "PLESK_HOST must be a plain FTP hostname like majidh1.ir, not a Plesk panel URL like https://majidh1.ir:8443/"
               exit 1
               ;;
           esac
 
-      - name: Deploy dist to Plesk
-        uses: appleboy/scp-action@v0.1.7
+      - name: Deploy dist to Plesk via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          host: ${{ secrets.PLESK_HOST }}
+          server: ${{ secrets.PLESK_HOST }}
           username: ${{ secrets.PLESK_USER }}
           password: ${{ secrets.PLESK_PASSWORD }}
-          port: ${{ secrets.PLESK_PORT }}
-          source: "dist/*"
-          target: ${{ secrets.PLESK_TARGET }}
-          strip_components: 1
-          overwrite: true
+          protocol: ftp
+          port: 21
+          local-dir: ./dist/
+          server-dir: ${{ secrets.PLESK_FTP_TARGET || '/httpdocs/' }}
